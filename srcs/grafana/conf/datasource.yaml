@@ -1,0 +1,22 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    datasource.yaml                                    :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: wnormcor <wnormcor@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2020/11/16 08:48:29 by wnormcor          #+#    #+#              #
+#    Updated: 2020/11/17 11:03:02 by wnormcor         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+apiVersion: 1
+datasources:
+- name: InfluxDB
+  type: influxdb
+  access: proxy
+  database: dashboards
+  isDefault: true
+  user: admin
+  password: admin
+  url: http://influxdb:8086

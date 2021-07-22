@@ -1,0 +1,75 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    telegraf.yaml                                      :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: wnormcor <wnormcor@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2020/11/17 10:20:17 by wnormcor          #+#    #+#              #
+#    Updated: 2020/11/18 18:16:35 by wnormcor         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: telegraf
+  annotations:
+    metallb.universe.tf/allow-shared-ip: shared
+spec:
+  selector:
+    app: telegraf
+  ports:
+  - port: 8085
+    protocol: TCP
+    name: http
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegraf
+spec:
+  selector:
+    matchLabels:
+      app: telegraf
+  template:
+    metadata:
+      labels:
+        app: telegraf
+    spec:
+      containers:
+      - name: telegraf
+        image: telegraf
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8085
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: role-rbac
+  namespace: default
+rules:
+- apiGroups: [ "", "extensions", "apps" ]
+  verbs: [ "get", "list", "watch"]
+  resources: [ "daemonsets", "deployments", "endpoints", "ingresses", "nodes", "persistentvolumes", "persistentvolumeclaims", "pods", "services", "statefulsets" ]
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: rolebinding-rbac
+  namespace: default
+roleRef:
+  kind: Role
+  name: role-rbac
+  apiGroup: ""
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: default

@@ -1,0 +1,21 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    dashboard.yaml                                     :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: wnormcor <wnormcor@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2020/11/16 08:48:25 by wnormcor          #+#    #+#              #
+#    Updated: 2020/11/16 08:48:26 by wnormcor         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+apiVersion: 1
+providers:
+- name: 'default'
+  orgId: 1
+  folder: ''
+  folderUid: ''
+  type: file
+  options:
+    path: /usr/share/grafana/conf/provisioning/dashboards/ft_services

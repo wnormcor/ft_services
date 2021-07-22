@@ -1,0 +1,107 @@
+# **************************************************************************** #
+#                                                                              #
+#                                                         :::      ::::::::    #
+#    influxdb.yaml                                      :+:      :+:    :+:    #
+#                                                     +:+ +:+         +:+      #
+#    By: wnormcor <wnormcor@student.42.fr>          +#+  +:+       +#+         #
+#                                                 +#+#+#+#+#+   +#+            #
+#    Created: 2020/11/16 08:49:03 by wnormcor          #+#    #+#              #
+#    Updated: 2020/11/17 11:03:08 by wnormcor         ###   ########.fr        #
+#                                                                              #
+# **************************************************************************** #
+
+# PersistentVolume (PV) - это часть хранилища в кластере, которая была 
+# предоставлена администратором.  Это ресурс в кластере, точно так же, как узел 
+# является ресурсом кластера.  PV - это плагины томов, такие как Volumes, 
+# но их жизненный цикл не зависит от какого-либо отдельного модуля, который 
+# использует PV.
+
+#apiVersion: v1
+#kind: PersistentVolume
+#metadata:
+#  name: influxdb-pv-volume
+#  labels:
+#    type: local
+#spec:
+#  storageClassName: influxdb-volume
+#  capacity:
+#    storage: 1Gi
+#  accessModes:
+#    - ReadWriteOnce
+#  hostPath:
+#    path: "/mnt/data"
+
+---
+
+# PersistentVolumeClaim (PVC) - это запрос пользователя на хранение. 
+# Это похоже на капсулу. Поды потребляют ресурсы узла, 
+# а PVC - фотоэлектрические ресурсы. 
+# Поды могут запрашивать определенные уровни ресурсов (ЦП и память). 
+# Утверждения могут запрашивать определенный размер и режимы доступа 
+# (например, могут монтироваться один раз для чтения / 
+# записи или много раз только для чтения).
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: influxdb-pvc
+#  labels:
+#    app: influxdb
+spec:
+#  storageClassName: influxdb-volume
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: influxdb
+  annotations:
+    metallb.universe.tf/allow-shared-ip: shared
+#  labels:
+#    app: influxdb
+spec:
+  type: ClusterIP
+  selector:
+    app: influxdb
+  ports:
+  - port: 8086
+    targetPort: 8086
+    protocol: TCP
+    name: http
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+#  labels:
+#    app: influxdb
+spec:
+  selector:
+    matchLabels:
+      app: influxdb
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      containers:
+        - name: influxdb
+          image: influxdb
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8086
+          volumeMounts:
+            - name: influxdb-persistent-storage
+              mountPath: /var/lib/
+      volumes:
+      - name: influxdb-persistent-storage
+        persistentVolumeClaim:
+          claimName: influxdb-pvc
